@@ -1,7 +1,9 @@
 package com.SaiAmirthesh.ToDoAPI;
 
 import com.SaiAmirthesh.ToDoAPI.models.ToDo;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +18,7 @@ public class ToDoController {
 
     //creating todos
     @PostMapping("/create")
-    ResponseEntity<ToDo> createTodo(@RequestBody ToDo todo) {
+    ResponseEntity<ToDo> createTodo(@Valid @RequestBody ToDo todo) {
         return new ResponseEntity<>(toDoService.createTodo(todo), HttpStatus.CREATED);
     }
 
@@ -36,6 +38,12 @@ public class ToDoController {
     ResponseEntity<List<ToDo>> getToDos(){
         return new ResponseEntity<List<ToDo>>(toDoService.getToDos(),HttpStatus.OK);
     }
+
+    @GetMapping("/page")
+    ResponseEntity<Page<ToDo>> getAllToDoPages(@RequestParam int page, @RequestParam int size){
+        return new ResponseEntity<Page<ToDo>>(toDoService.getAllToDoPages(page,size),HttpStatus.OK);
+    }
+
 
     @PutMapping("/update")
     ResponseEntity<ToDo> updateToDo(@RequestBody ToDo todo){
