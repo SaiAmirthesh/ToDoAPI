@@ -1,5 +1,6 @@
-package com.SaiAmirthesh.ToDoAPI;
+package com.SaiAmirthesh.ToDoAPI.service;
 
+import com.SaiAmirthesh.ToDoAPI.repository.ToDoRepository;
 import com.SaiAmirthesh.ToDoAPI.models.ToDo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
