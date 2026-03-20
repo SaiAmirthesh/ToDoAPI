@@ -1,27 +1,31 @@
 package com.SaiAmirthesh.ToDoAPI.models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
 @Entity
 @Data
-
 public class ToDo {
+
     @Id
-    @GeneratedValue
-    Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @NotBlank
     @Column(nullable = false)
-    String title;
+    private String title;
 
-    String description;
+    private String description;
 
     @NotNull
     @Column(nullable = false)
-    Boolean isCompleted;
+    private Boolean isCompleted;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
+    private User user;
 }

@@ -1,41 +1,65 @@
 package com.SaiAmirthesh.ToDoAPI.service;
 
-import com.SaiAmirthesh.ToDoAPI.repository.ToDoRepository;
 import com.SaiAmirthesh.ToDoAPI.models.ToDo;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.SaiAmirthesh.ToDoAPI.models.User;
+import com.SaiAmirthesh.ToDoAPI.repository.ToDoRepository;
+import com.SaiAmirthesh.ToDoAPI.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
+
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ToDoService {
-    @Autowired
-    private ToDoRepository todorepository ;
 
-    public ToDo createTodo(ToDo todo) {
-        return todorepository.save(todo);
+    private final ToDoRepository toDoRepository;
+    private final UserRepository userRepository;
+
+    private User getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    public ToDo getToDoById(Long id){
-        return todorepository.findById(id).orElseThrow(()->new RuntimeException("ToDo not found"));
+    public List<ToDo> getAllToDos() {
+        User user = getCurrentUser();
+        return toDoRepository.findByUser(user);
     }
 
-    public Page<ToDo> getAllToDoPages(int page,int size){
-        Pageable pageable = PageRequest.of(page,size);
-        return todorepository.findAll(pageable);
+    public ToDo createToDo(ToDo toDo) {
+        User user = getCurrentUser();
+        toDo.setUser(user);
+        return toDoRepository.save(toDo);
     }
 
-    public List<ToDo> getToDos(){
-        return todorepository.findAll();
+    public ToDo getToDoById(Long id) {
+        User user = getCurrentUser();
+        return toDoRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new RuntimeException("ToDo not found"));
     }
 
-    public ToDo updateToDo(ToDo todo){
-        return todorepository.save(todo);
+    public ToDo updateToDo(Long id, ToDo updatedToDo) {
+        User user = getCurrentUser();
+
+        ToDo existingToDo = toDoRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new RuntimeException("ToDo not found"));
+
+        existingToDo.setTitle(updatedToDo.getTitle());
+        existingToDo.setDescription(updatedToDo.getDescription());
+        existingToDo.setIsCompleted(updatedToDo.getIsCompleted());
+
+        return toDoRepository.save(existingToDo);
     }
 
-    public void deleteToDoById(Long id){
-        todorepository.delete(getToDoById(id));
+    public void deleteToDo(Long id) {
+        User user = getCurrentUser();
+
+        ToDo toDo = toDoRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new RuntimeException("ToDo not found"));
+
+        toDoRepository.delete(toDo);
     }
 }
