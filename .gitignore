@@ -32,6 +32,6 @@ build/
 ### keys
 src/main/resources/application-local.properties
 .env
-
+out/
 ### VS Code ###
 .vscode/
